@@ -8,8 +8,25 @@ module.exports = {
   getById: id =>
     db.soumission.findByPk(id),
 
-  create: data =>
-    db.soumission.create(data),
+  getByUser: utilisateurId =>
+    db.soumission.findAll({
+      where: { etudiant_id: utilisateurId },
+      include: [{ model: db.sujet }]
+    }),
+
+    getBySujetAndUser: (sujetId, etudiantId) =>
+      db.soumission.findOne({
+        where: { sujet_id: sujetId, etudiant_id: etudiantId }
+      }),
+
+  create: (sujetId, etudiantId, filePath) =>
+    db.soumission.create({
+      chemin_fichier_pdf: filePath,
+      sujet_id: sujetId,
+      etudiant_id: etudiantId,
+      etat_upload: 'TERMINE',
+      etat: 'SOUMIS'
+    }),
 
   update: (id, data) =>
     db.soumission.update(data, { where: { id } }),

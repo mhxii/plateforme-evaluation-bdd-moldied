@@ -41,6 +41,9 @@ export const fetchSujetById = (sujetId) => {
   return API.get(`/sujets/${sujetId}`);
 };
 
+export const fetchSujetSubmission = sujetId =>
+  API.get(`/sujets/${sujetId}/soumission`);
+
 /**
  * (Optionnel) Met à jour les métadonnées d’un sujet
  * @param {number} sujetId
@@ -69,3 +72,6 @@ export const createSujet = (data) => {
     headers: { 'Content-Type': 'multipart/form-data' }
   });
 };
+
+export const fetchSoumissionsBySujet = sujetId =>
+  API.get(`/sujets/${sujetId}/soumissions`);

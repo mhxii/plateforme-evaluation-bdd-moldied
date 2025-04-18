@@ -8,7 +8,7 @@ const JWT_SECRET = process.env.JWT_SECRET || 'une_clé_secrète';
 module.exports = {
   register: async ({ prenom, nom, email, password }) => {
     const hash = await bcrypt.hash(password, 10);
-    const user = await db.utilisateur.create({ prenom, nom, email, mot_de_passe_hash: hash, role: 'PROFESSEUR' });
+    const user = await db.utilisateur.create({ prenom, nom, email, mot_de_passe_hash: hash, role: 'ETUDIANT' });
     return { prenom: user.prenom, nom: user.nom, email: user.email, role: user.role };
   },
 

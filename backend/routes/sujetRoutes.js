@@ -4,6 +4,8 @@ const multer  = require('multer');
 const path    = require('path');
 const router  = express.Router();
 const svc     = require('../services/sujetService');
+const rapportService = require('../services/rapportService');
+const soumissionService = require('../services/soumissionService');
 
 // Multer config pour stocker les PDF
 const storage = multer.diskStorage({
@@ -32,6 +34,23 @@ router.get('/:id', async (req, res) => {
     const sujet = await svc.getById(req.params.id);
     res.json(sujet);
   } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+router.get('/:id/soumission', async (req, res) => {
+  const etudiantId = req.user.id; // ou req.query.userId en dev
+  const soum = await soumissionService.getBySujetAndUser(req.params.id, etudiantId);
+  res.json(soum || {});
+});
+
+//  Renvoie la liste des soumissions pour le sujet :id
+router.get('/:id/rapports', async (req, res) => {
+  try {
+    const rapports = await rapportService.getBySujet(req.params.id);
+    res.json(rapports);
+  } catch (err) {
+    console.error('Erreur GET /sujets/:id/rapports', err);
     res.status(500).json({ error: err.message });
   }
 });

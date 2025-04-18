@@ -17,9 +17,20 @@ module.exports = {
    * Récupère un sujet par son ID
    * @param {number} id
    */
-  getById: (id) => {
-    return db.sujet.findByPk(id);
-  },
+  getById: id => db.sujet.findByPk(id, {
+    include: [{ model: db.utilisateur, as: 'professeur', attributes: ['id','nom','prenom'] }]
+  }),
+
+  create: data => db.sujet.create({
+    titre: data.titre,
+    description: data.description,
+    chemin_fichier_pdf: data.referenceFilePath || '',
+    chemin_fichier_correction_pdf: '',
+    date_limite: data.dateLimite,
+    etat: 'PUBLIE',
+    professeur_id: data.professeurId
+  }),
+
 
   /**
    * Crée un nouveau sujet

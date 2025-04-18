@@ -16,6 +16,7 @@ import {
 // Base URL pour les fichiers (défini dans .env)
 const API_BASE = import.meta.env.VITE_API_URL || '';
 
+
 const CorrectionModelsPage = () => {
   const { darkMode, toggleTheme } = useTheme();
 
@@ -57,7 +58,7 @@ const CorrectionModelsPage = () => {
       textColor: darkMode ? 'text-gray-100' : 'text-gray-900'
     },
     {
-      name: 'Exercices couverts',
+      name: 'Exercices Total',
       value: [...new Set(models.map(m => m.exerciseTitle))].length.toString(),
       icon: CheckCircle,
       color: darkMode ? '#34D399' : '#10B981',
@@ -145,11 +146,20 @@ const CorrectionModelsPage = () => {
       </Header>
 
       {/* StatCards */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mt-6">
+      <motion.div
+        className="grid grid-cols-1 gap-6 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 mb-8"
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 1 }}
+      >
         {stats.map((stat, i) => (
-          <StatCard key={i} {...stat} />
+          <StatCard
+            key={i}
+            {...stat}
+            darkMode={darkMode}
+          />
         ))}
-      </div>
+      </motion.div>
 
       {/* Tableau */}
       <div className={`mt-8 rounded-xl p-6 ${darkMode ? 'bg-gray-800' : 'bg-white shadow'}`}>

@@ -71,7 +71,9 @@ app.use('/soumissions', require('./routes/soumissionRoutes'));
 app.use('/notifications', require('./routes/notificationRoutes'));
 app.use('/logs', require('./routes/logActiviteRoutes'));
 app.use('/parametre_ia', require('./routes/parametreIARoutes'));
-
+const statisticsRoutes = require('./routes/statisticsRoutes');
+app.use('/stats', statisticsRoutes);
+app.use('/rapport', require('./routes/rapportRoutes'));
 const PORT = process.env.PORT || 3001;
 db.sequelize.sync().then(() =>
   app.listen(PORT, () => console.log(`✅ Serveur sur http://localhost:${PORT}`))
