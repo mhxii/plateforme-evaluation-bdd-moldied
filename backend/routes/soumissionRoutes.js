@@ -108,6 +108,24 @@ router.put(
   }
 );
 
+router.put('/:id/correction', async (req, res) => {
+  try {
+    const { note_final, commentaire_prof } = req.body;
+    // on met à jour note_final, commentaire_prof et l'état
+    await soumService.update(req.params.id, {
+      note_final,
+      commentaire_prof,
+      etat: 'CORRIGE'
+    });
+    // renvoyer la soumission mise à jour
+    const updated = await soumService.getById(req.params.id);
+    res.json(updated);
+  } catch (err) {
+    console.error('Erreur mise à jour correction :', err);
+    res.status(400).json({ error: err.message });
+  }
+});
+
 // DELETE /api/submissions/:id -> retirer son dépôt
 router.delete('/:id', async (req, res) => {
   try {

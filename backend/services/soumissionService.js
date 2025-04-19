@@ -2,8 +2,10 @@
 const db = require('../models');
 
 module.exports = {
-  getAll: () =>
-    db.soumission.findAll({ include: [db.utilisateur, db.sujet] }),
+  getAll: () => 
+    db.soumission.findAll({ 
+      include: [db.utilisateur, db.sujet], 
+      order: [['updatedAt', 'DESC']]}),
 
   getById: id =>
     db.soumission.findByPk(id),

@@ -43,19 +43,33 @@ const ConsultationNotes = () => {
     }
     load();
   }, []);
+
+  console.log(submissions);
+
+
   
 
   const handleGradeAdjustment = async (submissionId, adjustedGrade, feedback) => {
     try {
       await updateSoumission(submissionId, {
-        note_automatique: adjustedGrade,
-        commentaire_ia: feedback,
-        etat: 'CORRIGE'
+        note_final: adjustedGrade,
+        commentaire_prof: feedback,
       });
       // … mise à jour locale de state existante …
     } catch (err) {
       console.error(err);
     }
+      setSubmissions(subs =>
+    subs.map(s =>
+      s.id === submissionId
+        ? { 
+            ...s,
+            note_final: adjustedGrade,
+            feedback: feedback 
+          }
+        : s
+    )
+  );
   };
 
   return (

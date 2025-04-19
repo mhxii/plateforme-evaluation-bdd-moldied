@@ -19,7 +19,7 @@ export const fetchSoumissionsByEtu = (etudiantId) =>
   };
 
 export const updateSoumission = (id, data) =>
-  API.put(`/soumissions/${id}`, data);
+  API.put(`/soumissions/${id}/correction`, data);
 
 // src/services/soumissionService.js
 
