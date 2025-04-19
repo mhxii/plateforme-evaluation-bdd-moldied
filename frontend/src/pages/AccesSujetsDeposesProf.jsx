@@ -36,13 +36,13 @@ const AccesSujetsDeposesEtudiant = () => {
   const [selectedPdf, setSelectedPdf] = useState(null);
   const fileInputRefs = useRef({});
   const savedUser = JSON.parse(localStorage.getItem("user"));
-  
+
   useEffect(() => {
     fetchSujets()
       .then(res => setSujets(res.data))
       .catch(console.error);
 
-      fetchSoumissionsByEtu(savedUser.id)
+    fetchSoumissionsByEtu(savedUser.id)
       .then(res => setSoumissions(res.data))
       .catch(console.error);
   }, []);
@@ -65,8 +65,10 @@ const AccesSujetsDeposesEtudiant = () => {
   const openFileSelector = id => fileInputRefs.current[id]?.click();
   const handleFileChange = async (sujetId, e) => {
     const file = e.target.files[0];
-    if (!file || file.type !== "application/pdf" || file.size > 10*1024*1024) {
-      setFileError("Fichier PDF requis (≤ 10 Mo).");
+    // if (!file || file.type !== "application/pdf" || file.size > 10*1024*1024) {
+    //   setFileError("Fichier PDF requis (≤ 10 Mo).");
+    if (!file || file.size > 10*1024*1024) {
+        setFileError("Fichier requis (taille ≤ 10 Mo).");
       return;
     }
     setFileError("");
@@ -75,9 +77,8 @@ const AccesSujetsDeposesEtudiant = () => {
       if (existing) {
         await corrigerSoumission(existing.id, file);
       } else {
-        await uploadSubmission({ sujetId, file, userId: savedUser.id });
+        await uploadSubmission({ sujetId, userId: savedUser.id, file });
       }
-
       const fresh = await fetchSoumissionsByEtu(savedUser.id).then(r => r.data);
       setSoumissions(fresh);
     } catch(err) {
@@ -128,6 +129,7 @@ const AccesSujetsDeposesEtudiant = () => {
     <div className={`flex-1 ${darkMode ? "bg-gray-900" : "bg-gray-50"} transition-colors`}>
       <Header title="Accès aux Sujets Déposés" />
       <main className="max-w-7xl mx-auto py-6 px-4">
+
         {/* Statistiques */}
         <motion.div
           className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5 mb-8"
@@ -166,7 +168,7 @@ const AccesSujetsDeposesEtudiant = () => {
                     <td className="px-6 py-3 flex items-center justify-center space-x-2">
                       <input
                         type="file"
-                        accept="application/pdf"
+                        // accept="application/pdf"
                         ref={el => fileInputRefs.current[sujet.id] = el}
                         style={{ display: 'none' }}
                         onChange={e => handleFileChange(sujet.id, e)}
@@ -228,7 +230,52 @@ const AccesSujetsDeposesEtudiant = () => {
           </table>
         </motion.div>
 
-        {/* … Modals d’upload / retrait … */}
+        {/* Upload Modal */}
+        {uploadingId !== null && (
+          <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+            <div className={`p-6 rounded shadow-lg w-96 transition-colors ${
+              darkMode ? "bg-gray-800 text-gray-100" : "bg-white text-gray-900"
+            }`}>
+              {fileError && <p className="mb-4 text-red-500">{fileError}</p>}
+              <p className="mb-4">
+                Sélectionnez un PDF pour <strong>{sujets.find(s=>s.id===uploadingId)?.titre}</strong>
+              </p>
+              <div className="flex justify-center mb-4">
+                <button
+                  onClick={() => openFileSelector(uploadingId)}
+                  className="flex items-center px-4 py-2 bg-blue-500 hover:bg-blue-600 text-white rounded"
+                >
+                  <FileText size={18} className="mr-1"/> Choisir le fichier
+                </button>
+              </div>
+              <div className="flex justify-end">
+                <button onClick={() => setUploadingId(null)}>Annuler</button>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* Withdraw Modal */}
+        {confirmWithdrawId !== null && (
+          <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+            <div className={`p-6 rounded shadow-lg w-96 transition-colors ${
+              darkMode ? "bg-gray-800 text-gray-100" : "bg-white text-gray-900"
+            }`}>
+              <p className="mb-4">
+                Retirer le dépôt pour <strong>{sujets.find(s=>s.id===confirmWithdrawId)?.titre}</strong> ?
+              </p>
+              <div className="flex justify-end space-x-2">
+                <button onClick={() => setConfirmWithdrawId(null)}>Annuler</button>
+                <button
+                  onClick={confirmWithdraw}
+                  className="px-4 py-2 bg-red-500 hover:bg-red-600 text-white rounded"
+                >
+                  Confirmer
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
 
         {/* PDF Viewer */}
         {showPdfViewer && selectedPdf && (
@@ -248,6 +295,7 @@ const AccesSujetsDeposesEtudiant = () => {
             </div>
           </div>
         )}
+
       </main>
     </div>
   );

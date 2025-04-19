@@ -1,5 +1,6 @@
 // backend/services/sujetService.js
 const db = require('../models');
+const emailService = require('./emailService'); 
 
 module.exports = {
   /**
@@ -21,22 +22,12 @@ module.exports = {
     include: [{ model: db.utilisateur, as: 'professeur', attributes: ['id','nom','prenom'] }]
   }),
 
-  create: data => db.sujet.create({
-    titre: data.titre,
-    description: data.description,
-    chemin_fichier_pdf: data.referenceFilePath || '',
-    chemin_fichier_correction_pdf: '',
-    date_limite: data.dateLimite,
-    etat: 'PUBLIE',
-    professeur_id: data.professeurId
-  }),
-
 
   /**
    * Crée un nouveau sujet
    */
-  create: (data) => {
-    return db.sujet.create({
+  create: async (data) => {
+    const sujet = await db.sujet.create({
       titre: data.titre,
       description: data.description,
       chemin_fichier_pdf: data.referenceFilePath || '',
@@ -45,13 +36,28 @@ module.exports = {
       etat: 'PUBLIE',
       professeur_id: data.professeurId
     });
+    if (sujet.etat === 'PUBLIE') {
+      await emailService.sendEmailToStudents(sujet);
+    }
+
+    return sujet;
   },
 
   /**
    * Met à jour un sujet
    */
-  update: (id, data) => {
-    return db.sujet.update(data, { where: { id } });
+  update: async (id, data) => {
+    const sujet = await db.sujet.findByPk(id);
+    if (!sujet) throw new Error('Sujet non trouvé');
+    
+    const updatedSujet = await sujet.update(data);
+
+    // Si le sujet est désormais publié, envoyez un e-mail aux étudiants
+    if (updatedSujet.etat === 'PUBLIE') {
+      await emailService.sendEmailToStudents(updatedSujet);
+    }
+
+    return updatedSujet;
   },
 
   /**
